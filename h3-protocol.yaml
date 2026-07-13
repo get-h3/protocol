@@ -1,0 +1,306 @@
+openapi: 3.1.0
+info:
+  title: H3 Protocol
+  version: 1.0.0
+  description: >
+    Hermes Harness Hooks — two-endpoint protocol for connecting
+    external agent harnesses to Hermes Core.
+servers:
+  - url: http://localhost:9191
+    description: Local harness
+
+paths:
+  /v1/health:
+    get:
+      summary: Health check
+      description: >
+        Returns the harness health status. Hermes polls this every 30
+        seconds. Three consecutive failures marks the harness unreachable
+        and sessions are routed to native fallback.
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: "Harness is healthy (status: ok)"
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/v1/health-response.json'
+        '503':
+          description: "Harness is degraded or down"
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/v1/health-response.json'
+
+  /v1/process:
+    post:
+      summary: "New message → Decision"
+      description: >
+        Hermes calls this when a new user message arrives. The harness
+        receives full context (history, tools, models, memory, config)
+        and must return exactly one Decision.
+      operationId: processMessage
+      tags:
+        - Core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/v1/process-request.json'
+      responses:
+        '200':
+          description: "Decision returned — harness drives next action"
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/v1/decision.json'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/result:
+    post:
+      summary: "Execution result → Decision"
+      description: >
+        Hermes calls this after executing a prior Decision. The harness
+        receives the execution result and returns the next Decision.
+        The loop continues until the harness returns a decision of type
+        'end'.
+      operationId: submitResult
+      tags:
+        - Core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/v1/result-request.json'
+      responses:
+        '200':
+          description: "Next decision returned"
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/v1/decision.json'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '410':
+          $ref: '#/components/responses/SessionExpired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/cancel:
+    post:
+      summary: "Cancel in-flight operation"
+      description: >
+        Hermes calls this to cancel an in-flight decision. Used when the
+        user sends a new message mid-processing or types /stop. The
+        harness should abort the current operation as soon as possible.
+      operationId: cancelOperation
+      tags:
+        - Sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/v1/cancel-request.json'
+      responses:
+        '200':
+          description: "Cancellation acknowledged"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - cancelled
+                  - cancelled_decision_id
+                properties:
+                  cancelled:
+                    type: boolean
+                    description: "Whether an in-flight operation was cancelled"
+                  cancelled_decision_id:
+                    type: string
+                    description: "The decision ID that was cancelled, if any"
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1/sessions/{session_id}:
+    get:
+      summary: "Session metadata"
+      description: "Returns metadata for an active or completed session."
+      operationId: getSession
+      tags:
+        - Sessions
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Unique session identifier"
+      responses:
+        '200':
+          description: "Session metadata"
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/v1/session-response.json'
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      summary: "Terminate session"
+      description: >
+        Forces session termination. Used for cleanup and /new command
+        handling. The harness should release all resources associated
+        with this session.
+      operationId: deleteSession
+      tags:
+        - Sessions
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Unique session identifier"
+      responses:
+        '200':
+          description: "Session terminated"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - terminated
+                  - session_id
+                properties:
+                  terminated:
+                    type: boolean
+                    description: "Whether the session was terminated"
+                    example: true
+                  session_id:
+                    type: string
+                    description: "The session that was terminated"
+                    example: s_abc123
+        '404':
+          $ref: '#/components/responses/SessionNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  responses:
+    BadRequest:
+      description: >
+        The request was malformed or the harness rejected the input.
+        Error codes: INVALID_REQUEST, INVALID_DECISION, UNKNOWN_TOOL,
+        UNKNOWN_MODEL.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/v1/error-response.json'
+    SessionNotFound:
+      description: "The specified session ID does not exist on this harness."
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/v1/error-response.json'
+    SessionExpired:
+      description: "The session has expired and can no longer be used."
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/v1/error-response.json'
+    InternalError:
+      description: "An unrecoverable error occurred inside the harness."
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/v1/error-response.json'
+    GatewayTimeout:
+      description: "The harness did not respond within the expected time."
+      content:
+        application/json:
+          schema:
+            $ref: './schemas/v1/error-response.json'
+
+  schemas:
+    Decision:
+      description: >
+        Discriminated union of all possible decision types. The
+        'decision' field determines which sub-schema applies.
+      oneOf:
+        - $ref: './schemas/v1/tool-call.json'
+        - $ref: './schemas/v1/llm-call.json'
+        - $ref: './schemas/v1/text-response.json'
+        - $ref: './schemas/v1/wait.json'
+        - $ref: './schemas/v1/delegate.json'
+        - $ref: './schemas/v1/end.json'
+      discriminator:
+        propertyName: decision
+        mapping:
+          tool_call: './schemas/v1/tool-call.json'
+          llm_call: './schemas/v1/llm-call.json'
+          text: './schemas/v1/text-response.json'
+          wait: './schemas/v1/wait.json'
+          delegate: './schemas/v1/delegate.json'
+          end: './schemas/v1/end.json'
+    Common:
+      $ref: './schemas/v1/common.json'
+    Message:
+      $ref: './schemas/v1/common.json#/definitions/Message'
+    Identity:
+      $ref: './schemas/v1/common.json#/definitions/Identity'
+    Context:
+      $ref: './schemas/v1/common.json#/definitions/Context'
+    ProcessRequest:
+      $ref: './schemas/v1/process-request.json'
+    ResultRequest:
+      $ref: './schemas/v1/result-request.json'
+    HealthResponse:
+      $ref: './schemas/v1/health-response.json'
+    ErrorResponse:
+      $ref: './schemas/v1/error-response.json'
+    CancelRequest:
+      $ref: './schemas/v1/cancel-request.json'
+    SessionResponse:
+      $ref: './schemas/v1/session-response.json'
+
+x-h3-errors:
+  - code: INVALID_REQUEST
+    http_status: 400
+    description: "Malformed JSON or missing required fields"
+  - code: INVALID_DECISION
+    http_status: 400
+    description: "Decision type not recognized"
+  - code: UNKNOWN_TOOL
+    http_status: 400
+    description: "Tool name not in available tools"
+  - code: UNKNOWN_MODEL
+    http_status: 400
+    description: "Model not in available models"
+  - code: SESSION_NOT_FOUND
+    http_status: 404
+    description: "Session ID doesn't exist"
+  - code: SESSION_EXPIRED
+    http_status: 410
+    description: "Session timed out"
+  - code: HARNESS_TIMEOUT
+    http_status: 504
+    description: "Harness didn't respond in time"
+  - code: INTERNAL_ERROR
+    http_status: 500
+    description: "Harness-side crash"
