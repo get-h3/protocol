@@ -1,0 +1,13 @@
+{
+  "decision": "tool_call",
+  "decision_id": "d_7b2c",
+  "tool_call": {
+    "name": "terminal",
+    "params": {
+      "command": "cd /app/auth && docker compose up -d",
+      "workdir": "/home/kara/helios",
+      "timeout": 120
+    },
+    "reasoning": "Deploying auth endpoint to staging via Docker Compose"
+  }
+}

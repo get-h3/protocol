@@ -1,0 +1,11 @@
+{
+  "decision": "delegate",
+  "decision_id": "d_0b3c",
+  "delegate": {
+    "agent": "code-reviewer",
+    "task": "Review auth.go for security vulnerabilities",
+    "context": "The auth endpoint handles JWT tokens. Check for expiry validation, algorithm confusion, key management issues.",
+    "model": "glm-5.2",
+    "provider": "zai-glm"
+  }
+}

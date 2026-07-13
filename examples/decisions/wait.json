@@ -1,0 +1,9 @@
+{
+  "decision": "wait",
+  "decision_id": "d_f1a2",
+  "wait": {
+    "reason": "Waiting for CI pipeline to complete",
+    "duration_seconds": 120,
+    "poll_endpoint": "https://ci.example.com/jobs/1234/status"
+  }
+}

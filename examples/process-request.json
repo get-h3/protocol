@@ -1,0 +1,83 @@
+{
+  "session_id": "s_abc123",
+  "message": {
+    "role": "user",
+    "content": "Deploy the auth endpoint to staging",
+    "attachments": [
+      {
+        "type": "image",
+        "url": "file:///home/kara/.hermes/cache/img_abc.png",
+        "mime_type": "image/png"
+      }
+    ],
+    "timestamp": "2026-07-12T22:30:00Z"
+  },
+  "identity": {
+    "platform": "telegram",
+    "chat_id": "-1003310984808",
+    "thread_id": "84802",
+    "user_name": "Bane",
+    "user_id": "6849342682"
+  },
+  "context": {
+    "history": [
+      {"role": "user", "content": "What's the auth endpoint status?"},
+      {"role": "assistant", "content": "It's defined in /app/auth but not deployed yet."}
+    ],
+    "tools": [
+      {
+        "name": "terminal",
+        "description": "Execute shell commands on a Linux environment",
+        "parameters": {
+          "command": {"type": "string", "description": "The command to execute"},
+          "workdir": {"type": "string", "description": "Working directory"},
+          "timeout": {"type": "integer", "description": "Max seconds to wait"}
+        }
+      },
+      {
+        "name": "web_search",
+        "description": "Search the web",
+        "parameters": {
+          "query": {"type": "string", "description": "Search query"},
+          "limit": {"type": "integer", "description": "Max results"}
+        }
+      }
+    ],
+    "models": [
+      {
+        "name": "deepseek-v4-pro",
+        "provider": "deepseek-foreman",
+        "cost_per_1k_input": 0.0011,
+        "cost_per_1k_output": 0.0044,
+        "context_window": 128000,
+        "supports_vision": true,
+        "supports_tool_calling": true
+      },
+      {
+        "name": "glm-5.2",
+        "provider": "zai-glm",
+        "cost_per_1k_input": 0.0008,
+        "cost_per_1k_output": 0.0032,
+        "context_window": 131072,
+        "supports_vision": true,
+        "supports_tool_calling": true
+      }
+    ],
+    "memory": "Last deployment used Docker Compose. Auth endpoint lives in /app/auth. Staging server is at 10.0.0.5:3000.",
+    "skills": ["coding-hermes-foreman", "gitreins"],
+    "config": {
+      "max_iterations": 50,
+      "timeout_seconds": 600,
+      "project_dir": "/home/kara/helios",
+      "max_tool_calls_per_turn": 1,
+      "temperature": 0.7
+    },
+    "session_state": {
+      "turn_count": 4,
+      "total_tool_calls": 3,
+      "total_llm_calls": 2,
+      "cost_so_far": 0.0156,
+      "started_at": "2026-07-12T22:25:00Z"
+    }
+  }
+}

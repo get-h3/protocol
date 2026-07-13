@@ -1,0 +1,13 @@
+{
+  "decision": "llm_call",
+  "decision_id": "d_8c3d",
+  "llm_call": {
+    "model": "deepseek-v4-pro",
+    "system_prompt": "You are an expert Go developer reviewing auth middleware.",
+    "messages": [
+      {"role": "user", "content": "Review this auth middleware for security issues:\n```go\nfunc AuthMiddleware..."}
+    ],
+    "temperature": 0.3,
+    "max_tokens": 4000
+  }
+}

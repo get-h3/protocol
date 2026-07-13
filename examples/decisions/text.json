@@ -1,0 +1,8 @@
+{
+  "decision": "text",
+  "decision_id": "d_9e4f",
+  "text": {
+    "content": "Found the issue in auth.go:142 — missing JWT expiry check.",
+    "finished": false
+  }
+}

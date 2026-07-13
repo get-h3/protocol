@@ -1,0 +1,14 @@
+{
+  "session_id": "s_abc123",
+  "decision_id": "d_7b2c",
+  "result": {
+    "type": "tool_result",
+    "tool_name": "terminal",
+    "data": {
+      "output": "Creating network auth_default...\nCreating auth_app_1... done\n✓ Auth endpoint deployed",
+      "exit_code": 0
+    },
+    "duration_ms": 2843,
+    "success": true
+  }
+}
