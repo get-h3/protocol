@@ -1,0 +1,30 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/delegate.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Delegate",
+  "description": "Decision to spawn a sub-agent.",
+  "type": "object",
+  "required": ["task"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "description": "Sub-agent name or role (e.g., 'code-reviewer')."
+    },
+    "task": {
+      "type": "string",
+      "description": "What the sub-agent should do."
+    },
+    "context": {
+      "type": "string",
+      "description": "Additional context for the sub-agent."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model to use (defaults to cheapest available)."
+    },
+    "provider": {
+      "type": "string",
+      "description": "Provider bucket name."
+    }
+  }
+}

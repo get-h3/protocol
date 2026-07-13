@@ -1,0 +1,18 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/text-response.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TextResponse",
+  "description": "Decision to send text to the user.",
+  "type": "object",
+  "required": ["content", "finished"],
+  "properties": {
+    "content": {
+      "type": "string",
+      "description": "Markdown-formatted text to send to the user."
+    },
+    "finished": {
+      "type": "boolean",
+      "description": "True = this is the final message. False = expect /v1/result with next decision."
+    }
+  }
+}

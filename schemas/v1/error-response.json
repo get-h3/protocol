@@ -1,0 +1,39 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/error-response.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ErrorResponse",
+  "description": "Standard error response for all H3 endpoints.",
+  "type": "object",
+  "required": ["error"],
+  "properties": {
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "INVALID_REQUEST",
+            "INVALID_DECISION",
+            "UNKNOWN_TOOL",
+            "UNKNOWN_MODEL",
+            "SESSION_NOT_FOUND",
+            "SESSION_EXPIRED",
+            "HARNESS_TIMEOUT",
+            "INTERNAL_ERROR"
+          ],
+          "description": "Machine-readable error code."
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message."
+        },
+        "details": {
+          "type": "object",
+          "description": "Optional additional error context.",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

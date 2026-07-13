@@ -1,0 +1,19 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/end.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "End",
+  "description": "Decision to terminate the session.",
+  "type": "object",
+  "required": ["reason"],
+  "properties": {
+    "reason": {
+      "type": "string",
+      "enum": ["task_complete", "user_requested", "error", "timeout", "rate_limited", "cancelled"],
+      "description": "Why the session is ending."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Optional summary of what was accomplished."
+    }
+  }
+}

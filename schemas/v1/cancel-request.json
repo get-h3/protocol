@@ -1,0 +1,19 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/cancel-request.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CancelRequest",
+  "description": "Request body for POST /v1/cancel — cancel an in-flight operation.",
+  "type": "object",
+  "required": ["session_id", "reason"],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Unique session identifier."
+    },
+    "reason": {
+      "type": "string",
+      "enum": ["user_interrupt", "timeout", "system"],
+      "description": "Why the cancellation was requested."
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/result-request.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResultRequest",
+  "description": "Request body for POST /v1/result — execution result of a prior decision.",
+  "type": "object",
+  "required": ["session_id", "decision_id", "result"],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Unique session identifier."
+    },
+    "decision_id": {
+      "type": "string",
+      "description": "The decision ID this result corresponds to."
+    },
+    "result": {
+      "type": "object",
+      "required": ["type", "success"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["tool_result", "llm_response", "text_sent", "delegate_result", "wait_timeout", "error"],
+          "description": "Type of result being reported."
+        },
+        "tool_name": {
+          "type": "string",
+          "description": "Name of the tool that was executed (for tool_result)."
+        },
+        "data": {
+          "type": "object",
+          "description": "Result-specific payload. Contents vary by result.type."
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Execution duration in milliseconds."
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Whether execution succeeded."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/llm-call.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LLMCall",
+  "description": "Decision to run an LLM prompt.",
+  "type": "object",
+  "required": ["model", "messages"],
+  "properties": {
+    "model": {
+      "type": "string",
+      "description": "Model name from context.models."
+    },
+    "system_prompt": {
+      "type": "string",
+      "description": "Optional system prompt override."
+    },
+    "messages": {
+      "type": "array",
+      "description": "Array of chat messages.",
+      "items": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["user", "assistant", "system"]
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "temperature": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 2.0,
+      "description": "LLM temperature (0.0–2.0, default 0.7)."
+    },
+    "max_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum response tokens."
+    }
+  }
+}

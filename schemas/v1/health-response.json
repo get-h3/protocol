@@ -1,0 +1,54 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/health-response.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HealthResponse",
+  "description": "Response from GET /v1/health — harness health status.",
+  "type": "object",
+  "required": ["status", "version"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["ok", "degraded", "down"],
+      "description": "Harness health status."
+    },
+    "version": {
+      "type": "string",
+      "description": "Harness version (e.g., '1.0.0')."
+    },
+    "transport": {
+      "type": "string",
+      "enum": ["rest"],
+      "description": "Transport protocol (always 'rest')."
+    },
+    "protocol_version": {
+      "type": "string",
+      "description": "H3 protocol version (e.g., '1.0')."
+    },
+    "uptime_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Seconds since harness started."
+    },
+    "active_sessions": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of active sessions."
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["tool_call", "llm_call", "text", "wait", "delegate", "end"]
+      },
+      "description": "Supported decision types."
+    },
+    "degraded_reason": {
+      "type": "string",
+      "description": "Human-readable reason when status is 'degraded'."
+    },
+    "error": {
+      "type": "string",
+      "description": "Error description when status is 'down'."
+    }
+  }
+}

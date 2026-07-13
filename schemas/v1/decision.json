@@ -1,0 +1,69 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/decision.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision",
+  "description": "Discriminated union of all possible H3 decision types. The 'decision' field determines which sub-schema applies.",
+  "type": "object",
+  "required": ["decision", "decision_id"],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": ["tool_call", "llm_call", "text", "wait", "delegate", "end"],
+      "description": "Discriminator — which type of decision this is."
+    },
+    "decision_id": {
+      "type": "string",
+      "description": "Unique identifier for this decision in the session."
+    }
+  },
+  "oneOf": [
+    {
+      "description": "tool_call: Execute a Hermes tool.",
+      "properties": {
+        "decision": { "const": "tool_call" },
+        "tool_call": { "$ref": "tool-call.json" }
+      },
+      "required": ["tool_call"]
+    },
+    {
+      "description": "llm_call: Run an LLM prompt.",
+      "properties": {
+        "decision": { "const": "llm_call" },
+        "llm_call": { "$ref": "llm-call.json" }
+      },
+      "required": ["llm_call"]
+    },
+    {
+      "description": "text: Send text to the user.",
+      "properties": {
+        "decision": { "const": "text" },
+        "text": { "$ref": "text-response.json" }
+      },
+      "required": ["text"]
+    },
+    {
+      "description": "wait: Pause for an external signal.",
+      "properties": {
+        "decision": { "const": "wait" },
+        "wait": { "$ref": "wait.json" }
+      },
+      "required": ["wait"]
+    },
+    {
+      "description": "delegate: Spawn a sub-agent.",
+      "properties": {
+        "decision": { "const": "delegate" },
+        "delegate": { "$ref": "delegate.json" }
+      },
+      "required": ["delegate"]
+    },
+    {
+      "description": "end: Terminate the session.",
+      "properties": {
+        "decision": { "const": "end" },
+        "end": { "$ref": "end.json" }
+      },
+      "required": ["end"]
+    }
+  ]
+}

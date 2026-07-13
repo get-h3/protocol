@@ -1,0 +1,23 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/process-request.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProcessRequest",
+  "description": "Request body for POST /v1/process — new user message triggers harness processing.",
+  "type": "object",
+  "required": ["session_id", "message", "identity", "context"],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Unique session identifier. Stable across turns."
+    },
+    "message": {
+      "$ref": "common.json#/definitions/Message"
+    },
+    "identity": {
+      "$ref": "common.json#/definitions/Identity"
+    },
+    "context": {
+      "$ref": "common.json#/definitions/Context"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/wait.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Wait",
+  "description": "Decision to pause for an external signal.",
+  "type": "object",
+  "required": ["reason"],
+  "properties": {
+    "reason": {
+      "type": "string",
+      "description": "Human-readable reason for the pause."
+    },
+    "duration_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum wait time. Hermes caps at context.config.timeout_seconds."
+    },
+    "poll_endpoint": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to poll every 15s. Resumes on success."
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/tool-call.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ToolCall",
+  "description": "Decision to execute a Hermes tool.",
+  "type": "object",
+  "required": ["name", "params"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Tool name matching one from context.tools."
+    },
+    "params": {
+      "type": "object",
+      "description": "Parameters matching the tool's JSON Schema."
+    },
+    "reasoning": {
+      "type": "string",
+      "description": "Why this tool call — logged for auditing."
+    }
+  }
+}
