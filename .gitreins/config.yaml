@@ -1,0 +1,21 @@
+project: "h3-protocol"
+language: "yaml"
+
+guards:
+  secrets:
+    enabled: true
+    severity: block
+  build:
+    enabled: false
+  lint:
+    enabled: false
+  tests:
+    enabled: false
+  dead_code:
+    enabled: false
+
+test:
+  mode: full
+
+commit:
+  require_guard_pass: true
