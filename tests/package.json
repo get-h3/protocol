@@ -1,0 +1,17 @@
+{
+  "name": "h3-protocol-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Validation and round-trip test scripts for the H3 Protocol specification",
+  "scripts": {
+    "validate": "bash tests/validate-schemas.sh",
+    "roundtrip": "node tests/round-trip.js",
+    "test": "bash tests/validate-schemas.sh && node tests/round-trip.js"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^1.25.0",
+    "ajv": "^8.17.0",
+    "ajv-cli": "^5.0.0",
+    "ajv-formats": "^3.0.0"
+  }
+}
