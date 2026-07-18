@@ -1,0 +1,53 @@
+# H3 Version Compatibility Matrix
+#
+# Single source of truth for Hermes ↔ H3 version compatibility.
+# Auto-generated from S03 spec §7.1.
+# See: h3/specs/03-Installer-Version-Compat.md
+
+hermes_versions:
+  - hermes: "0.18.0"
+    h3_shim: "1.0.0"
+    protocol: "1.0"
+    min_h3: "1.0.0"
+    max_h3: "1.0.x"
+    grpc: false
+    status: "current"
+    notes: "REST only. Production target."
+
+  - hermes: "0.19.0"
+    h3_shim: "1.1.0"
+    protocol: "1.0"
+    min_h3: "1.0.0"
+    max_h3: "1.x.x"
+    grpc: true
+    status: "planned"
+    notes: "gRPC beta. Protocol still 1.0, backward-compatible."
+
+  - hermes: "0.20.0"
+    h3_shim: "2.0.0"
+    protocol: "2.0"
+    min_h3: "2.0.0"
+    max_h3: "2.x.x"
+    grpc: true
+    status: "planned"
+    notes: "Protocol 2.0. Breaking changes. Bridge adapter for 1.0 harnesses."
+
+# SDK versions map to protocol versions (from S03 §5)
+sdk_versions:
+  - protocol: "1.0"
+    go: "1.0.x"
+    python: "1.0.x"
+    typescript: "1.0.x"
+    status: "current"
+  - protocol: "2.0"
+    go: "2.0.x"
+    python: "2.0.x"
+    typescript: "2.0.x"
+    status: "planned"
+
+# Deprecation policy (from S03 §3.3)
+deprecation_policy:
+  major_version_support: "6 months after N+1 release"
+  deprecation_warning_period: "3 months before removal"
+  migration_guide: "published with every MAJOR bump"
+  protocol_bridge: "provided for 1 MAJOR version gap"
