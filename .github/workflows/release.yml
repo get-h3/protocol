@@ -28,3 +28,36 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           generate_release_notes: true
+
+  dispatch:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      # Repository admins must create DISPATCH_PAT with repo scope if it does not exist.
+      - name: Dispatch protocol update to Go SDK
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_PAT }}
+          repository: get-h3/sdk-go
+          event-type: protocol-update
+
+      - name: Dispatch protocol update to Python SDK
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_PAT }}
+          repository: get-h3/sdk-python
+          event-type: protocol-update
+
+      - name: Dispatch protocol update to TypeScript SDK
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_PAT }}
+          repository: get-h3/sdk-typescript
+          event-type: schema-updated
+
+      - name: Dispatch protocol update to shim
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_PAT }}
+          repository: get-h3/shim
+          event-type: protocol-updated
