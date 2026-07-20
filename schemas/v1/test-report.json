@@ -1,0 +1,96 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/test-report.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestReport",
+  "description": "Aggregate report produced by the H3 compliance test battery.",
+  "type": "object",
+  "required": ["results", "total", "passed", "failed", "duration_ms", "timestamp", "all_passing"],
+  "properties": {
+    "results": {
+      "type": "array",
+      "description": "Individual test results.",
+      "items": {
+        "$ref": "#/$defs/TestResult"
+      }
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of tests executed."
+    },
+    "passed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of tests that passed."
+    },
+    "failed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of tests that failed."
+    },
+    "duration_ms": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total execution time in milliseconds."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the report was generated."
+    },
+    "all_passing": {
+      "type": "boolean",
+      "description": "True when every test passed (failed == 0)."
+    },
+    "harness": {
+      "type": "object",
+      "description": "Optional harness metadata (endpoint, transport, version).",
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL of the harness tested."
+        },
+        "transport": {
+          "type": "string",
+          "description": "Transport protocol (e.g., 'rest')."
+        },
+        "protocol_version": {
+          "type": "string",
+          "description": "H3 protocol version negotiated."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "TestResult": {
+      "title": "TestResult",
+      "description": "Outcome of a single compliance test.",
+      "type": "object",
+      "required": ["name", "passed", "detail", "duration_ms", "category"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique test identifier (e.g., 'health_ok')."
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Whether the test passed."
+        },
+        "detail": {
+          "type": "string",
+          "description": "Human-readable result detail (e.g., 'Expected 200, got 200')."
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Execution time in milliseconds."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category label (e.g., 'Health & Protocol')."
+        }
+      }
+    }
+  }
+}
