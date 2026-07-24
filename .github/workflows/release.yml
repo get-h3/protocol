@@ -61,3 +61,10 @@ jobs:
           token: ${{ secrets.DISPATCH_PAT }}
           repository: get-h3/shim
           event-type: protocol-updated
+
+      - name: Dispatch cross-repo integration test to h3
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_PAT }}
+          repository: get-h3/h3
+          event-type: protocol-updated
