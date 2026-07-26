@@ -2,17 +2,11 @@ project: "h3-protocol"
 language: "yaml"
 
 guards:
-  secrets:
-    enabled: true
-    severity: block
-  build:
-    enabled: false
-  lint:
-    enabled: false
-  tests:
-    enabled: false
-  dead_code:
-    enabled: false
+  secrets: true
+  build: false
+  lint: false
+  tests: false
+  dead_code: false
 
 test:
   mode: full
@@ -30,6 +24,12 @@ pipeline:
           type: script
           run: "gitreins guard"
           on_fail: block
+    - id: tier2
+      type: ai_eval
+      on: [pre-eval]
+      condition: "true"
+      max_iterations: 50
+      tools: [read_file, run_command, search_pattern, read_diff, sandbox, detect_dead_code]
 
 evaluator:
   max_iterations: 50
