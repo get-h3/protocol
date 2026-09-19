@@ -5,3 +5,5 @@
 dagger.db
 dagger.db-shm
 dagger.db-wal
+.gitreins/history/
+.gitreins/usage.jsonl
