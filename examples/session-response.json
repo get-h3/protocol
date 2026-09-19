@@ -1,0 +1,9 @@
+{
+  "session_id": "s_abc123",
+  "started_at": "2026-07-12T22:25:00Z",
+  "last_active": "2026-07-12T22:30:15Z",
+  "turn_count": 4,
+  "status": "active",
+  "current_decision": "dba151bd-5558-4e7f-af34-65f960b22cf2",
+  "current_decision_type": "tool_call"
+}

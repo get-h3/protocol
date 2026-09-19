@@ -119,17 +119,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - cancelled
-                  - cancelled_decision_id
-                properties:
-                  cancelled:
-                    type: boolean
-                    description: "Whether an in-flight operation was cancelled"
-                  cancelled_decision_id:
-                    type: string
-                    description: "The decision ID that was cancelled, if any"
+                $ref: './schemas/v1/cancel-response.json'
         '404':
           $ref: '#/components/responses/SessionNotFound'
         '500':
@@ -183,19 +173,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - terminated
-                  - session_id
-                properties:
-                  terminated:
-                    type: boolean
-                    description: "Whether the session was terminated"
-                    example: true
-                  session_id:
-                    type: string
-                    description: "The session that was terminated"
-                    example: s_abc123
+                $ref: './schemas/v1/session-terminate-response.json'
         '404':
           $ref: '#/components/responses/SessionNotFound'
         '500':
@@ -278,6 +256,10 @@ components:
       $ref: './schemas/v1/cancel-request.json'
     SessionResponse:
       $ref: './schemas/v1/session-response.json'
+    CancelResponse:
+      $ref: './schemas/v1/cancel-response.json'
+    SessionTerminateResponse:
+      $ref: './schemas/v1/session-terminate-response.json'
 
 x-h3-errors:
   - code: INVALID_REQUEST

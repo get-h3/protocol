@@ -2,9 +2,10 @@
 #===============================================================================
 # H3 Protocol — Schema + Example Validation Script
 #
-# Validates all 15 JSON Schema files, checks all example payloads against their
-# schemas, verifies no published schema escapes the gate (STEP 4), and lints the
-# OpenAPI spec. Exits 0 on success, non-zero on failure.
+# Validates all 17 JSON Schema files, checks all example payloads against their
+# schemas, verifies no published schema escapes the gate (STEP 4), checks that
+# h3-protocol.yaml / schemas/v1 / examples have not drifted apart (STEP 5), and
+# lints the OpenAPI spec. Exits 0 on success, non-zero on failure.
 #
 # Usage:  cd <repo-root> && bash tests/validate-schemas.sh
 #===============================================================================
@@ -74,7 +75,9 @@ STANDALONE_SCHEMAS=(
   health-response.json
   error-response.json
   cancel-request.json
+  cancel-response.json
   session-response.json
+  session-terminate-response.json
   tool-call.json
   llm-call.json
   text-response.json
@@ -149,6 +152,43 @@ check "validate examples/result-request.json" \
     -d examples/result-request.json \
     "${VALIDATE_OPTS[@]}"
 
+# request/response examples for the two-endpoint surface that had none
+check "validate examples/cancel-request.json" \
+  ajv validate \
+    -s "$SCHEMAS_DIR/cancel-request.json" \
+    -d examples/cancel-request.json \
+    "${VALIDATE_OPTS[@]}"
+
+check "validate examples/cancel-response.json" \
+  ajv validate \
+    -s "$SCHEMAS_DIR/cancel-response.json" \
+    -d examples/cancel-response.json \
+    "${VALIDATE_OPTS[@]}"
+
+check "validate examples/session-response.json" \
+  ajv validate \
+    -s "$SCHEMAS_DIR/session-response.json" \
+    -d examples/session-response.json \
+    "${VALIDATE_OPTS[@]}"
+
+check "validate examples/session-terminate-response.json" \
+  ajv validate \
+    -s "$SCHEMAS_DIR/session-terminate-response.json" \
+    -d examples/session-terminate-response.json \
+    "${VALIDATE_OPTS[@]}"
+
+check "validate examples/health-response.json" \
+  ajv validate \
+    -s "$SCHEMAS_DIR/health-response.json" \
+    -d examples/health-response.json \
+    "${VALIDATE_OPTS[@]}"
+
+check "validate examples/error-response.json" \
+  ajv validate \
+    -s "$SCHEMAS_DIR/error-response.json" \
+    -d examples/error-response.json \
+    "${VALIDATE_OPTS[@]}"
+
 # test-report examples — normal run, then the refused non-H3-target shape
 check "validate examples/test-report.json" \
   ajv validate \
@@ -219,6 +259,24 @@ for f in "$SCHEMAS_DIR"/*.json; do
       ;;
   esac
 done
+
+# =============================================================================
+#   STEP 5 — Spec drift (spec ↔ schemas/v1 ↔ examples)
+# =============================================================================
+echo ""
+echo "╔══════════════════════════════════════════════════════════════╗"
+echo "║  STEP 5: Spec drift (spec ↔ schemas/v1 ↔ examples)          ║"
+echo "╚══════════════════════════════════════════════════════════════╝"
+
+# h3-protocol.yaml is the declared source of truth, but nothing verified that it
+# and the schemas/v1 corpus it $refs and the examples/ payloads still agree.
+# check-spec-drift.js asserts: every $ref resolves, no payload schema is written
+# inline under paths (a shape that would escape every schema-level gate), the
+# Decision union matches decision.json, common.json definition refs resolve,
+# every passed schema file is referenced or declared out-of-band, and every
+# schema file has an example the gate validates. It prints one ✓/✗ line per
+# check and exits non-zero on any drift.
+check "spec drift checker (spec ↔ schemas/v1 ↔ examples)" node tests/check-spec-drift.js
 
 # =============================================================================
 #   Summary

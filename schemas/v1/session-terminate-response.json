@@ -1,0 +1,18 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/session-terminate-response.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SessionTerminateResponse",
+  "description": "Response for DELETE /v1/sessions/{session_id} (200).",
+  "type": "object",
+  "required": ["terminated", "session_id"],
+  "properties": {
+    "terminated": {
+      "type": "boolean",
+      "description": "Whether the session was terminated."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "The session that was terminated."
+    }
+  }
+}

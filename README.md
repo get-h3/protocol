@@ -17,18 +17,26 @@ H3 is a two-endpoint protocol: Hermes sends a message, the harness returns a Dec
 ```
 protocol/
 ├── h3-protocol.yaml          # OpenAPI 3.1 — all endpoints, schemas, error codes
-├── schemas/v1/               # 15 JSON Schema files (one per type)
+├── schemas/v1/               # 17 JSON Schema files (one per type)
 │   ├── process-request.json  # Full context: history, tools, models, config
 │   ├── decision.json         # Union: text, tool_call, delegate, llm_call, wait, end
 │   ├── result-request.json   # Execution result + session state
 │   ├── health-response.json  # Status, version, capabilities
+│   ├── cancel-response.json  # POST /v1/cancel 200 (cancelled_decision_id may be null)
+│   ├── session-terminate-response.json # DELETE /v1/sessions/:id 200
 │   ├── test-report.json      # Compliance battery report (h3-test --json output)
 │   └── ...                   # Supporting schemas (common, errors, etc.)
 ├── examples/                 # Valid example payloads for every request/response
+│   ├── process-request.json  # Full process request (what the harness receives)
+│   ├── cancel-response.json  # Cancellation acknowledged
+│   ├── session-terminate-response.json # Session terminated
 │   ├── test-report.json      # Normal battery report (results + latency stats)
-│   └── test-report-not-h3.json # Battery refused the target (not an H3 endpoint)
+│   ├── test-report-not-h3.json # Battery refused the target (not an H3 endpoint)
+│   ├── decisions/            # One example per decision type (6 files)
+│   └── ...                   # Plus health-response, error-response, sessions
 ├── tests/
-│   ├── validate-schemas.sh   # Validates all schema/example pairs + redocly lint
+│   ├── validate-schemas.sh   # Validates all schema/example pairs + redocly lint + drift
+│   ├── check-spec-drift.js   # spec ↔ schemas/v1 ↔ examples drift checker (STEP 5)
 │   └── round-trip.js         # Cross-language wire format verification
 ├── versions.yaml             # Hermes ↔ H3 version compatibility matrix
 └── AGENTS.md                 # AI agent guidance
@@ -44,10 +52,11 @@ bash tests/validate-schemas.sh
 ```
 
 This runs:
-1. `redocly lint h3-protocol.yaml` — OpenAPI spec validation
-2. All 15 JSON Schema files validated with `ajv`
-3. All example payloads checked against their schemas
+1. All 17 JSON Schema files validated with `ajv`
+2. All 16 example payloads checked against their schemas
+3. `redocly lint h3-protocol.yaml` — OpenAPI spec validation
 4. A coverage check that fails if a file under `schemas/v1/` is not validated by the script (no published schema may sit outside the gate)
+5. A spec-drift check (`node tests/check-spec-drift.js`) that fails if `h3-protocol.yaml`, `schemas/v1/` and `examples/` disagree — an unresolved `$ref`, a payload schema written inline under a path instead of a `$ref`, a `Decision` union that no longer matches `decision.json`, or a schema file with no example
 
 ### View the Spec
 

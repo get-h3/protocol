@@ -1,0 +1,10 @@
+{
+  "error": {
+    "code": "INVALID_DECISION",
+    "message": "Decision type 'foo_bar' is not recognized",
+    "details": {
+      "valid_types": ["tool_call", "llm_call", "text", "wait", "delegate", "end"],
+      "received": "foo_bar"
+    }
+  }
+}

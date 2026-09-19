@@ -1,0 +1,18 @@
+{
+  "$id": "https://github.com/get-h3/protocol/schemas/v1/cancel-response.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CancelResponse",
+  "description": "Response for POST /v1/cancel (200).",
+  "type": "object",
+  "required": ["cancelled", "cancelled_decision_id"],
+  "properties": {
+    "cancelled": {
+      "type": "boolean",
+      "description": "Whether an in-flight operation was cancelled"
+    },
+    "cancelled_decision_id": {
+      "type": ["string", "null"],
+      "description": "The decision ID that was cancelled, or null when no operation was in flight. Nullable because the reference emitter types this field as `str | None = None` (get-h3/shim, src/h3_shim/protocol.py, CancelResponse), so null is a real wire value and not a missing field."
+    }
+  }
+}
