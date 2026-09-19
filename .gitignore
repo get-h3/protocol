@@ -1,2 +1,7 @@
 .vfs/
 .gitreins/tasks.yaml
+.gitreins/logs/
+.pytest_cache/
+dagger.db
+dagger.db-shm
+dagger.db-wal

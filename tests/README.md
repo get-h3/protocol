@@ -28,11 +28,12 @@ cd tests && npm install
 bash tests/validate-schemas.sh
 ```
 
-This does three things:
+This does four things:
 
-1. **Schema compilation** — compiles all 14 JSON Schema files (`schemas/v1/*.json`) with `ajv` to verify they are valid schemas
+1. **Schema compilation** — compiles all 15 JSON Schema files (`schemas/v1/*.json`) with `ajv` to verify they are valid schemas
 2. **Example validation** — validates every example payload (`examples/`) against its corresponding schema using `ajv`
 3. **OpenAPI lint** — lints `h3-protocol.yaml` with `@redocly/cli`
+4. **Coverage check** — fails loudly if a file exists in `schemas/v1/` that the script does not compile (anti-rot: a published schema must never sit outside the gate)
 
 ### Round-trip tests
 
