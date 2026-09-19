@@ -28,13 +28,21 @@ pipeline:
       type: ai_eval
       on: [pre-eval]
       condition: "true"
-      max_iterations: 50
+      max_iterations: 200
       tools: [read_file, run_command, search_pattern, read_diff, sandbox, detect_dead_code]
 
 evaluator:
-  max_iterations: 50
-  max_time: "10m"
-  max_input_tokens: "0.2M"
+  # Cap history (P6-01, 2026-09-19): first eval of this repo starved on the
+  # input-token budget — "Input token budget (200k) exceeded (210k used)" with
+  # tier1 PASS, tier2 INCOMPLETE (verdict 4a776038, NOT a merits failure).
+  # used ~= configured cap is budget starvation, not the model window
+  # (deepseek-v4-flash per-call window is 1M). Rung raised 0.2M -> 1M;
+  # iterations 50 -> 200 and time 10m -> 30m sized per the fleet shape for
+  # criteria that carry live-verification clauses. Both the stage block above
+  # and the evaluator block must move together — the smaller value wins.
+  max_iterations: 200
+  max_time: "30m"
+  max_input_tokens: "1M"
   max_output_tokens: "0.05M"
   max_tokens_per_call: 16384
   tool_call_weight: 0.1
