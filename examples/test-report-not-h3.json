@@ -1,0 +1,22 @@
+{
+  "warning": "Warning: http://localhost:9191 does not look like an H3 endpoint (connection error: All connection attempts failed).",
+  "endpoint": "http://localhost:9191",
+  "not_h3_endpoint": true,
+  "reason": "connection error: All connection attempts failed",
+  "results": [],
+  "total": 0,
+  "passed": 0,
+  "failed": 0,
+  "duration_ms": 0.0,
+  "timestamp": "2026-09-19T14:05:02.119047+00:00",
+  "all_passing": false,
+  "latency": {
+    "min_ms": 0.0,
+    "p50_ms": 0.0,
+    "p90_ms": 0.0,
+    "p95_ms": 0.0,
+    "p99_ms": 0.0,
+    "max_ms": 0.0,
+    "mean_ms": 0.0
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "results": [
+    {
+      "name": "health_ok",
+      "passed": true,
+      "detail": "200 OK, status=200",
+      "duration_ms": 12.4,
+      "category": "Health & Protocol"
+    },
+    {
+      "name": "health_version",
+      "passed": true,
+      "detail": "version='1.0.0', protocol_version='1.0'",
+      "duration_ms": 38.9,
+      "category": "Health & Protocol"
+    },
+    {
+      "name": "health_latency",
+      "passed": true,
+      "detail": "5.1ms",
+      "duration_ms": 5.1,
+      "category": "Health & Protocol"
+    },
+    {
+      "name": "process_decision_has_id",
+      "passed": false,
+      "detail": "Invalid decision_id: None",
+      "duration_ms": 64.2,
+      "category": "Decision Types"
+    }
+  ],
+  "total": 4,
+  "passed": 3,
+  "failed": 1,
+  "duration_ms": 148.7,
+  "timestamp": "2026-09-19T14:03:21.482913+00:00",
+  "all_passing": false,
+  "latency": {
+    "min_ms": 5.1,
+    "p50_ms": 12.4,
+    "p90_ms": 64.2,
+    "p95_ms": 64.2,
+    "p99_ms": 64.2,
+    "max_ms": 64.2,
+    "mean_ms": 30.15
+  }
+}

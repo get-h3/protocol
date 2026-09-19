@@ -2,7 +2,7 @@
   "$id": "https://github.com/get-h3/protocol/schemas/v1/test-report.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "TestReport",
-  "description": "Aggregate report produced by the H3 compliance test battery.",
+  "description": "Aggregate report produced by the H3 compliance test battery (`h3-test --json` in the get-h3/shim plugin). Two shapes share this schema: a normal run (results/total/passed/failed/duration_ms/timestamp/all_passing/latency) and a refused run against a target that is not an H3 endpoint (warning/endpoint/not_h3_endpoint/reason plus empty counters).",
   "type": "object",
   "required": ["results", "total", "passed", "failed", "duration_ms", "timestamp", "all_passing"],
   "properties": {
@@ -42,9 +42,30 @@
       "type": "boolean",
       "description": "True when every test passed (failed == 0)."
     },
+    "latency": {
+      "$ref": "#/$defs/LatencyStats",
+      "description": "Per-test latency statistics (milliseconds) over `results`. Optional in the contract but always written by the current producer (`h3-test --json`), including the refused-run shape where an empty results list yields all zeros. Kept optional so an emitter that serialises the report without latency statistics (e.g. `report_as_dict()`) remains valid."
+    },
+    "warning": {
+      "type": "string",
+      "description": "Human-readable warning. Present only on the refused-run shape (target is not an H3 endpoint)."
+    },
+    "endpoint": {
+      "type": "string",
+      "format": "uri",
+      "description": "Base URL of the target that was probed. Present only on the refused-run shape."
+    },
+    "not_h3_endpoint": {
+      "type": "boolean",
+      "description": "True when the battery refused to run because the target does not expose an H3-shaped /v1/health endpoint. Present only on the refused-run shape; the CLI exits 2 in that case."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason the target was rejected, e.g. 'connection error: All connection attempts failed' or 'status 404 Not Found: <body snippet>'. Present only on the refused-run shape."
+    },
     "harness": {
       "type": "object",
-      "description": "Optional harness metadata (endpoint, transport, version).",
+      "description": "RESERVED / forward-looking extension point. No current producer emits this object — the battery CLI reports the probed target as the top-level `endpoint` field on the refused-run shape and does not echo harness metadata on a normal run. Retained in the 1.x contract so code generated from this schema keeps compiling; do not populate it in an emitter without a protocol minor-version bump.",
       "properties": {
         "endpoint": {
           "type": "string",
@@ -89,6 +110,49 @@
         "category": {
           "type": "string",
           "description": "Category label (e.g., 'Health & Protocol')."
+        }
+      }
+    },
+    "LatencyStats": {
+      "title": "LatencyStats",
+      "description": "Nearest-rank latency statistics (milliseconds) over the duration_ms of every test result in the report. An empty results list yields all zeros.",
+      "type": "object",
+      "required": ["min_ms", "p50_ms", "p90_ms", "p95_ms", "p99_ms", "max_ms", "mean_ms"],
+      "properties": {
+        "min_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Fastest test duration."
+        },
+        "p50_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Median test duration."
+        },
+        "p90_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "90th percentile test duration."
+        },
+        "p95_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "95th percentile test duration."
+        },
+        "p99_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "99th percentile test duration."
+        },
+        "max_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Slowest test duration."
+        },
+        "mean_ms": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Arithmetic mean of every test duration."
         }
       }
     }

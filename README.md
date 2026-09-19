@@ -17,13 +17,16 @@ H3 is a two-endpoint protocol: Hermes sends a message, the harness returns a Dec
 ```
 protocol/
 ├── h3-protocol.yaml          # OpenAPI 3.1 — all endpoints, schemas, error codes
-├── schemas/v1/               # 14 JSON Schema files (one per type)
+├── schemas/v1/               # 15 JSON Schema files (one per type)
 │   ├── process-request.json  # Full context: history, tools, models, config
 │   ├── decision.json         # Union: text, tool_call, delegate, llm_call, wait, end
 │   ├── result-request.json   # Execution result + session state
 │   ├── health-response.json  # Status, version, capabilities
+│   ├── test-report.json      # Compliance battery report (h3-test --json output)
 │   └── ...                   # Supporting schemas (common, errors, etc.)
 ├── examples/                 # Valid example payloads for every request/response
+│   ├── test-report.json      # Normal battery report (results + latency stats)
+│   └── test-report-not-h3.json # Battery refused the target (not an H3 endpoint)
 ├── tests/
 │   ├── validate-schemas.sh   # Validates all schema/example pairs + redocly lint
 │   └── round-trip.js         # Cross-language wire format verification
@@ -42,8 +45,9 @@ bash tests/validate-schemas.sh
 
 This runs:
 1. `redocly lint h3-protocol.yaml` — OpenAPI spec validation
-2. All 14 JSON Schema files validated with `ajv`
+2. All 15 JSON Schema files validated with `ajv`
 3. All example payloads checked against their schemas
+4. A coverage check that fails if a file under `schemas/v1/` is not validated by the script (no published schema may sit outside the gate)
 
 ### View the Spec
 

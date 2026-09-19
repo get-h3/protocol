@@ -135,6 +135,20 @@ testExample(
   'examples/result-request.json',
 );
 
+// test-report — normal run (results + latency stats)
+testExample(
+  path.join(EXAMPLES_DIR, 'test-report.json'),
+  'test-report.json',
+  'examples/test-report.json',
+);
+
+// test-report — refused run against a target that is not an H3 endpoint
+testExample(
+  path.join(EXAMPLES_DIR, 'test-report-not-h3.json'),
+  'test-report.json',
+  'examples/test-report-not-h3.json',
+);
+
 // All decision examples
 const decisionFiles = fs.readdirSync(DECISIONS_DIR).filter((f) => f.endsWith('.json')).sort();
 for (const f of decisionFiles) {
