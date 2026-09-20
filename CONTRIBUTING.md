@@ -80,7 +80,7 @@ Every object schema MUST document which fields are required vs optional. Use the
 
 Before approving a protocol change, verify:
 
-- [ ] `bash tests/validate-schemas.sh` passes (23/23 checks)
+- [ ] `bash tests/validate-schemas.sh` passes (56/56 checks)
 - [ ] New types have example payloads
 - [ ] Existing example payloads still validate
 - [ ] `versions.yaml` updated if version changed

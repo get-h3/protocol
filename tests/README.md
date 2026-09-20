@@ -33,7 +33,7 @@ This does five things:
 1. **Schema compilation** — compiles all 17 JSON Schema files (`schemas/v1/*.json`) with `ajv` to verify they are valid schemas
 2. **Example validation** — validates every example payload (`examples/`) against its corresponding schema using `ajv`
 3. **OpenAPI lint** — lints `h3-protocol.yaml` with `@redocly/cli`
-4. **Coverage check** — fails loudly if a file exists in `schemas/v1/` that the script does not compile (anti-rot: a published schema must never sit outside the gate)
+4. **Coverage check** — fails loudly if a file exists in `schemas/v1/` that the gate does not compile (anti-rot: a published schema must never sit outside the gate)
 5. **Spec drift check** — runs `node tests/check-spec-drift.js`, which verifies that `h3-protocol.yaml`, `schemas/v1/` and `examples/` still describe the same protocol:
    - every `$ref` in the spec resolves (file exists, `#/fragment` resolves, internal `#/…` resolves)
    - no payload schema is written inline under a path — every request/response media-type schema must be a `$ref` (an inline body shape escapes every schema-level gate)
@@ -41,6 +41,19 @@ This does five things:
    - every `common.json#/definitions/<Name>` `$ref` resolves to an existing definition
    - every file in `schemas/v1/` is either `$ref`-ed from the spec or declared out-of-band with a reason (e.g. `test-report.json`, a CLI artifact rather than an HTTP payload)
    - every file in `schemas/v1/` has a payload example that the gate validates, or is declared example-less with a reason (`common.json` is a definitions bag)
+
+### Host load
+
+Steps 1, 2 and 4 run in ONE Node interpreter (`tests/validate-all.js`), not one
+`ajv` CLI process per assertion. The `ajv` CLI is itself a Node script, so the
+per-assertion form paid a full interpreter start (~33 per gate run) for a check
+whose subject is the schema validation, not the process boundary — measurable as
+host load, and undesirable in CI and on shared development boxes. Two checks in
+`validate-schemas.sh` still invoke the real `ajv` CLI (parity smokes) so the CLI
+path this gate used to depend on stays covered. Nothing is skipped or cached
+between runs: every schema and example is read from disk and compiled/validated
+on every run, and the gate's completeness check fails if the total number of
+checks drops below the count a complete run emits.
 
 ### Round-trip tests
 
@@ -69,7 +82,8 @@ npm test --prefix tests
 
 | File | Purpose |
 |------|---------|
-| `validate-schemas.sh` | Bash script for schema compilation, example validation, OpenAPI lint, coverage, and the spec-drift step |
+| `validate-schemas.sh` | The gate: step banners, counters and exit code; drives the in-process runner for STEP 1/2/4, then redocly lint (STEP 3) and the spec-drift step (STEP 5) as separate processes |
+| `validate-all.js` | In-process STEP 1 + STEP 2 + STEP 4: owns the schema corpus tables, compiles every schema, validates every example, proves every file in `schemas/v1/` is covered. Prints one PASS/FAIL record per check back into `validate-schemas.sh` |
 | `check-spec-drift.js` | Node.js drift checker: `h3-protocol.yaml` ↔ `schemas/v1/` ↔ `examples/` (STEP 5) |
 | `round-trip.js` | Node.js script for programmatic validation + round-trip consistency checks |
 | `package.json` | npm dependencies: `ajv`, `ajv-cli`, `ajv-formats`, `@redocly/cli` |

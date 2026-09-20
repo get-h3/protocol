@@ -35,7 +35,8 @@ protocol/
 │   ├── decisions/            # One example per decision type (6 files)
 │   └── ...                   # Plus health-response, error-response, sessions
 ├── tests/
-│   ├── validate-schemas.sh   # Validates all schema/example pairs + redocly lint + drift
+│   ├── validate-schemas.sh   # The gate: drives the runner, redocly lint, drift check
+│   ├── validate-all.js       # In-process schema + example validation (STEP 1/2/4)
 │   ├── check-spec-drift.js   # spec ↔ schemas/v1 ↔ examples drift checker (STEP 5)
 │   └── round-trip.js         # Cross-language wire format verification
 ├── versions.yaml             # Hermes ↔ H3 version compatibility matrix
@@ -52,10 +53,10 @@ bash tests/validate-schemas.sh
 ```
 
 This runs:
-1. All 17 JSON Schema files validated with `ajv`
-2. All 16 example payloads checked against their schemas
+1. All 17 JSON Schema files validated with `ajv` (in-process, one Node interpreter — `tests/validate-all.js`)
+2. All 16 example payloads checked against their schemas, plus one real `ajv` CLI smoke per group so the CLI path stays covered
 3. `redocly lint h3-protocol.yaml` — OpenAPI spec validation
-4. A coverage check that fails if a file under `schemas/v1/` is not validated by the script (no published schema may sit outside the gate)
+4. A coverage check that fails if a file under `schemas/v1/` is not validated by the gate (no published schema may sit outside the gate)
 5. A spec-drift check (`node tests/check-spec-drift.js`) that fails if `h3-protocol.yaml`, `schemas/v1/` and `examples/` disagree — an unresolved `$ref`, a payload schema written inline under a path instead of a `$ref`, a `Decision` union that no longer matches `decision.json`, or a schema file with no example
 
 ### View the Spec

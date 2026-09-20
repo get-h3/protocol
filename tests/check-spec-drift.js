@@ -28,7 +28,9 @@
  *      OUT_OF_BAND below with a reason;
  *   f) every file in schemas/v1 has at least one example under examples/
  *      (or is declared NO_EXAMPLE with a reason), and that example is actually
- *      validated by the gate script (STEP 2).
+ *      validated by the gate (STEP 2 — the in-process corpus in
+ *      tests/validate-all.js, plus any example the shell script invokes
+ *      directly).
  *
  * Usage:  node tests/check-spec-drift.js      (works from any cwd)
  */
@@ -102,6 +104,22 @@ const schemaFiles = fs
 const exampleFiles = listExamples();
 const gateText = fs.existsSync(GATE_SCRIPT) ? fs.readFileSync(GATE_SCRIPT, 'utf8') : '';
 
+// STEP 2 no longer runs `ajv validate -d examples/<file>` once per example inside
+// the shell script: the per-assertion CLI spawns were replaced by ONE in-process
+// runner (tests/validate-all.js, P6-03 host-load fix). Check f) still has to
+// prove that every schema's example is actually validated BY THE GATE, so it now
+// reads the examples out of the runner's own corpus instead of regex-scanning
+// the shell for `-d` lines. Reading the wiring beats reading the prose: the
+// runner cannot validate an example it does not list here.
+let runnerExamples = null;
+let runnerExamplesError = null;
+try {
+  runnerExamples = require(path.join(TESTS_DIR, 'validate-all.js')).validatedExamples();
+  if (!Array.isArray(runnerExamples)) throw new Error('validatedExamples() did not return an array');
+} catch (err) {
+  runnerExamplesError = err.message;
+}
+
 // ── Small helpers ───────────────────────────────────────────────────────────
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 
@@ -158,8 +176,15 @@ function resolvePointer(doc, pointer) {
   return { found: true, value: cur };
 }
 
-/** True when `gateText` cites `relPath` literally or through a matching glob. */
+/**
+ * True when the gate is wired to validate `relPath`: it is either cited
+ * literally (or through a matching glob) in `gateText` — the shell script's own
+ * CLI invocations and parity smokes — or listed in the in-process runner's
+ * STEP 2 corpus (tests/validate-all.js), which is where every example check now
+ * lives.
+ */
 function citedByGate(relPath) {
+  if (runnerExamples && runnerExamples.includes(relPath)) return true;
   const tokens = gateText.match(/examples\/[A-Za-z0-9._*/-]+\.json/g) || [];
   return tokens.some((token) => {
     const rx = new RegExp(
@@ -544,6 +569,13 @@ check('f) every schemas/v1 file has an example under examples/ that the gate val
   const problems = [];
   let withExamples = 0;
 
+  if (runnerExamplesError) {
+    problems.push(
+      `tests/validate-all.js could not be loaded, so the gate's STEP 2 corpus is unreadable: ` +
+        `${runnerExamplesError}`,
+    );
+  }
+
   for (const file of schemaFiles) {
     const name = file.replace(/\.json$/, '');
 
@@ -582,8 +614,8 @@ check('f) every schemas/v1 file has an example under examples/ that the gate val
     for (const example of matches) {
       if (!citedByGate(example)) {
         problems.push(
-          `${example} covers schemas/v1/${file} but tests/validate-schemas.sh never validates it — ` +
-            `wire it into STEP 2`,
+          `${example} covers schemas/v1/${file} but the gate never validates it — ` +
+            `wire it into STEP 2 (tests/validate-all.js)`,
         );
       }
     }
