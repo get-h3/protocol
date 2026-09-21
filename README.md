@@ -78,9 +78,13 @@ This runs:
 ### View the Spec
 
 ```bash
-npx @redocly/cli preview-docs h3-protocol.yaml
+npx -y @redocly/cli@^1.25.0 preview-docs h3-protocol.yaml
 # Opens http://127.0.0.1:8080 with interactive API docs
 ```
+
+The major is pinned (`@^1.25.0` — the same range the gate's own tooling declares in
+`tests/package.json`): an unpinned `npx @redocly/cli` now resolves to CLI 2.x, which
+removed the `preview-docs` command. Add `--port <port>` if 8080 is already in use.
 
 ## Decision Types
 
