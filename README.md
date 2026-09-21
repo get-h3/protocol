@@ -45,6 +45,22 @@ protocol/
 
 ## Getting Started
 
+### Prerequisites
+
+Install the toolchain in this order — each step is needed by the next.
+
+1. `bash` and `make` — the gate is a bash script, and the repo root carries a `Makefile` that delegates to it (`make test` / `make validate`). That root `Makefile` is the CI and agent-harness entrypoint for this repo.
+2. Node.js 22 and npm — CI pins Node 22 (`.github/workflows/validate.yml`, `.github/workflows/release.yml`). `npm` is what installs the test dependencies in the next step.
+3. The test dependencies — `ajv` and `redocly` are not installed globally, and nothing installs them for you:
+
+```bash
+cd tests && npm install
+```
+
+Dependencies live in `tests/package.json` (there is deliberately no root `package.json`). That install provides `ajv` v8 with `ajv-cli` and `ajv-formats`, plus `@redocly/cli` (declared `^1.25.0`).
+
+With those in place the first command below works as written: the gate script adds `tests/node_modules/.bin` to `PATH` itself, so `ajv` and `redocly` resolve from the local install and no global install is needed.
+
 ### Validate Everything
 
 ```bash
