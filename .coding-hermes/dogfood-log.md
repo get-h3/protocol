@@ -1,0 +1,5 @@
+# Dogfood Log — get-h3/protocol
+
+| date | verdict | promise | install_seconds | bunker | smoke | findings | ttfs | notes |
+|---|---|---|---|---|---|---|---|---|
+| 2026-09-21 | ✅ SHIPPABLE | A harness author can implement the H3 two-endpoint loop (health/process/result + cancel/sessions) using only this repo's spec+schemas, with every payload valid against `schemas/v1/` | 11 (npm install; clone 2s, gate 2s) | las-bunker-03 agent=6a055eee (destroyed) | ok — gate 56/56 on fresh box, 2s | DF-01 (P1) README npx redocly 2.x broke `preview-docs`; DF-02 (P1) no runnable example harness / no hello-harness; DF-03 (P2) no per-operation examples in rendered docs | ~10 min (scratch consumer passing full loop end-to-end) | Consumer loop 10 exchanges all schema-valid (0.03s); gate warm 1.336s ± 0.019s (hyperfine n=20); round-trip 10/10 in 0.074s; no PERF rows — nothing slow enough to feel. Artifacts: docs/dogfood/2026-09-21-integration.md, docs/dogfood/diagnostics.md, skills/h3-protocol-usage/SKILL.md. Foreman NOT woken (fleet law 21600s; rows picked up at normal cadence). |
