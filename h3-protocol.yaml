@@ -5,6 +5,16 @@ info:
   description: >
     Hermes Harness Hooks — two-endpoint protocol for connecting
     external agent harnesses to Hermes Core.
+
+    Canonical sample payloads live in `examples/`. Every request and
+    response below references the file the gate (`tests/validate-schemas.sh`)
+    validates against its schema in `schemas/v1/`, so an operation's Example
+    panel and the validated fixture are never two different payloads. Error
+    responses share one worked payload — `examples/error-response.json`
+    (code INVALID_DECISION, HTTP 400); the shape for every other error code is
+    `schemas/v1/error-response.json`. The harness test-battery artifact
+    (`h3-test --json`) is `examples/test-report.json`, governed by
+    `schemas/v1/test-report.json` — a CLI artifact, not an HTTP body.
 servers:
   - url: http://localhost:9191
     description: Local harness
@@ -27,6 +37,9 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/v1/health-response.json'
+              examples:
+                healthy:
+                  $ref: './examples/health-response.json'
         '503':
           description: "Harness is degraded or down"
           content:
@@ -50,6 +63,9 @@ paths:
           application/json:
             schema:
               $ref: './schemas/v1/process-request.json'
+            examples:
+              process_request:
+                $ref: './examples/process-request.json'
       responses:
         '200':
           description: "Decision returned — harness drives next action"
@@ -57,6 +73,19 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/v1/decision.json'
+              examples:
+                tool_call:
+                  $ref: './examples/decisions/tool-call.json'
+                llm_call:
+                  $ref: './examples/decisions/llm-call.json'
+                text:
+                  $ref: './examples/decisions/text.json'
+                wait:
+                  $ref: './examples/decisions/wait.json'
+                delegate:
+                  $ref: './examples/decisions/delegate.json'
+                end:
+                  $ref: './examples/decisions/end.json'
         '400':
           $ref: '#/components/responses/BadRequest'
         '504':
@@ -81,6 +110,9 @@ paths:
           application/json:
             schema:
               $ref: './schemas/v1/result-request.json'
+            examples:
+              result_request:
+                $ref: './examples/result-request.json'
       responses:
         '200':
           description: "Next decision returned"
@@ -88,6 +120,19 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/v1/decision.json'
+              examples:
+                tool_call:
+                  $ref: './examples/decisions/tool-call.json'
+                llm_call:
+                  $ref: './examples/decisions/llm-call.json'
+                text:
+                  $ref: './examples/decisions/text.json'
+                wait:
+                  $ref: './examples/decisions/wait.json'
+                delegate:
+                  $ref: './examples/decisions/delegate.json'
+                end:
+                  $ref: './examples/decisions/end.json'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -113,6 +158,9 @@ paths:
           application/json:
             schema:
               $ref: './schemas/v1/cancel-request.json'
+            examples:
+              cancel_request:
+                $ref: './examples/cancel-request.json'
       responses:
         '200':
           description: "Cancellation acknowledged"
@@ -120,6 +168,9 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/v1/cancel-response.json'
+              examples:
+                cancel_response:
+                  $ref: './examples/cancel-response.json'
         '404':
           $ref: '#/components/responses/SessionNotFound'
         '500':
@@ -146,6 +197,9 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/v1/session-response.json'
+              examples:
+                active_session:
+                  $ref: './examples/session-response.json'
         '404':
           $ref: '#/components/responses/SessionNotFound'
         '500':
@@ -174,6 +228,9 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/v1/session-terminate-response.json'
+              examples:
+                session_terminated:
+                  $ref: './examples/session-terminate-response.json'
         '404':
           $ref: '#/components/responses/SessionNotFound'
         '500':
@@ -190,6 +247,9 @@ components:
         application/json:
           schema:
             $ref: './schemas/v1/error-response.json'
+          examples:
+            invalid_decision:
+              $ref: './examples/error-response.json'
     SessionNotFound:
       description: "The specified session ID does not exist on this harness."
       content:
