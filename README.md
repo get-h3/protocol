@@ -28,6 +28,7 @@ protocol/
 │   └── ...                   # Supporting schemas (common, errors, etc.)
 ├── examples/                 # Valid example payloads for every request/response
 │   ├── process-request.json  # Full process request (what the harness receives)
+│   ├── minimal-harness.py    # Runnable single-file harness (Python, FastAPI)
 │   ├── cancel-response.json  # Cancellation acknowledged
 │   ├── session-terminate-response.json # Session terminated
 │   ├── test-report.json      # Normal battery report (results + latency stats)
@@ -119,6 +120,62 @@ This repo is the upstream source for three SDKs that generate types from these s
 | sdk-typescript | TypeScript | [get-h3/sdk-typescript](https://github.com/get-h3/sdk-typescript) |
 
 When the protocol changes, downstream SDKs regenerate via their `sync-protocol` CI workflows.
+
+## Minimal harness example
+
+`examples/minimal-harness.py` is a runnable single-file harness (FastAPI, 147 lines) — the
+fastest way to see the wire format before writing your own. It needs no shim and no SDK, and
+reads no file of this repo at runtime.
+
+```bash
+uv run --with fastapi --with uvicorn python examples/minimal-harness.py
+# serves http://127.0.0.1:9191 — the port in h3-protocol.yaml `servers`; HOST/PORT override it
+```
+
+It answers `GET /v1/health`, then echoes the turn: `POST /v1/process` returns a `text`
+Decision carrying the history it received, and the second `POST /v1/result` ends the session
+with `end` / `task_complete`. The bodies below are real output from a live run — full
+transcript, raw bodies and the schema cross-check are in
+[`docs/verification/proto-df-02-minimal-harness.md`](docs/verification/proto-df-02-minimal-harness.md).
+That run set `PORT=9199` because a local shim already held the default 9191.
+
+```bash
+cat > /tmp/process.json <<'JSON'
+{
+  "session_id": "s_demo1",
+  "message": {"role": "user", "content": "hello h3", "timestamp": "2026-09-22T20:20:00Z"},
+  "identity": {"platform": "cli", "chat_id": "c_1", "user_name": "copier", "user_id": "u_1"},
+  "context": {
+    "history": [
+      {"role": "user", "content": "first turn"},
+      {"role": "assistant", "content": "first reply"}
+    ],
+    "tools": [],
+    "models": [],
+    "config": {"max_iterations": 5, "timeout_seconds": 60},
+    "session_state": {"turn_count": 1, "total_tool_calls": 0, "total_llm_calls": 0,
+                      "cost_so_far": 0, "started_at": "2026-09-22T20:19:00Z"}
+  }
+}
+JSON
+
+# 1. new user message -> Decision (decision_id is assigned by the harness per decision)
+curl -s -X POST http://127.0.0.1:9199/v1/process \
+  -H 'Content-Type: application/json' -d @/tmp/process.json
+{"decision_id":"d_f9fbc034","decision":"text","text":{"content":"Echo: hello h3","finished":false},"history":[{"role":"user","content":"first turn"},{"role":"assistant","content":"first reply"}]}
+
+# 2. report the execution result -> next Decision
+curl -s -X POST http://127.0.0.1:9199/v1/result \
+  -H 'Content-Type: application/json' \
+  -d '{"session_id":"s_demo1","decision_id":"d_f9fbc034","result":{"type":"text_sent","success":true}}'
+{"decision_id":"d_3bc02e41","decision":"text","text":{"content":"Result received: text_sent for d_f9fbc034","finished":false}}
+```
+
+The same call with `-d @examples/process-request.json` works unchanged: the harness accepts
+this repo's own canonical example payload. Errors come back in the shape of
+`schemas/v1/error-response.json` — `400 INVALID_REQUEST` for a body that fails validation,
+`404 SESSION_NOT_FOUND` for an unknown `session_id` — with the codes and statuses of
+`h3-protocol.yaml` → `x-h3-errors`.
 
 ## Release Pipeline
 
