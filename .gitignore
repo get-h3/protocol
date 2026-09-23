@@ -7,3 +7,4 @@ dagger.db-shm
 dagger.db-wal
 .gitreins/history/
 .gitreins/usage.jsonl
+.gitreins/tasks.yaml.lock
