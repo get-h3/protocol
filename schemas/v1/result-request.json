@@ -32,9 +32,9 @@
           "description": "Result-specific payload. Contents vary by result.type."
         },
         "duration_ms": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0,
-          "description": "Execution duration in milliseconds."
+          "description": "Execution duration in milliseconds (integer or fractional)."
         },
         "success": {
           "type": "boolean",
